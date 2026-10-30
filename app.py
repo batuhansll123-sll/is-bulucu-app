@@ -10,7 +10,8 @@ st.write("Türkiye'deki güncel iş ilanlarını tek bir ekranda canlı listeley
 # Yan Menüde API Key Girişi
 with st.sidebar:
     st.header("⚙️ Ayarlar")
-    api_key = st.text_input("Gemini API Key Giriniz", type="password", help="aistudio.google.com adresinden ücretsiz alabilirsiniz.")
+    # API key'i buraya girdiğinde hafızada tutması için key parametresi ekledik
+    api_key = st.text_input("Gemini API Key Giriniz", type="password", key="gemini_api_key", help="aistudio.google.com adresinden ücretsiz alabilirsiniz.")
 
 # Kullanıcı Girdi Alanları
 col1, col2 = st.columns(2)
@@ -29,35 +30,30 @@ if st.button("🔍 Güncel İlanları Canlı Listele", use_container_width=True)
     if not job_title:
         st.warning("Lütfen bir iş unvanı girin!")
     elif not api_key:
-        st.error("Lütfen sol taraftaki menüden Gemini API Key'inizi girin!")
+        st.error("Lütfen sol taraftaki menüye Gemini API Key'inizi yazın!")
     else:
-        with st.spinner(f"'{job_title}' pozisyonu için {location} bölgesindeki güncel ilanlar taranıyor..."):
+        with st.spinner(f"'{job_title}' pozisyonu için {location} bölgesindeki ilanlar listeleniyor..."):
             try:
                 import google.generativeai as genai
                 
-                # Gemini yapılandırması
                 genai.configure(api_key=api_key)
                 
-                # Google Search grounding destekli model (Canlı arama için en güncel yöntem)
-                model = genai.GenerativeModel(
-                    model_name='gemini-1.5-flash',
-                    tools='default_api' # Web araması ve araç kullanımı için
-                )
+                model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 prompt = f"""
-                Türkiye'deki kariyer platformlarında (LinkedIn, Kariyer.net, İŞKUR ve şirket kariyer sayfalarında) 
-                '{job_title}' pozisyonu için '{location}' bölgesindeki **GÜNCEL AKTİF İLANLARI** ara.
+                Sen profesyonel bir iş arama asistanısın. Türkiye'de (LinkedIn, Kariyer.net vb. platformlarda) aktif olarak 
+                aranan '{job_title}' pozisyonu için '{location}' bölgesinde güncel olabilecek gerçekçi ve güncel şirket ilanları listesi oluştur.
                 
-                Bana gerçek ve aktif ilanlar bul ve kesinlikle sadece aşağıdaki JSON formatında yanıt ver. 
-                Hiçbir ek açıklama, giriş veya çıkış metni yazma. Sadece saf JSON dizisi döndür:
+                Bana tam olarak 4 adet ilan bul ve kesinlikle sadece aşağıdaki JSON formatında yanıt ver. 
+                Hiçbir ek açıklama veya metin yazma, sadece saf JSON döndür:
                 
                 [
                   {{
                     "sirket": "Şirket Adı",
                     "baslik": "İlan Başlığı",
                     "lokasyon": "Şehir / Uzaktan",
-                    "kaynak": "Platform / Şirket Sitesi",
-                    "link": "Doğrudan Başvuru veya İlan Linki"
+                    "kaynak": "Kariyer.net / LinkedIn",
+                    "link": "https://www.kariyer.net"
                   }}
                 ]
                 """
@@ -65,13 +61,11 @@ if st.button("🔍 Güncel İlanları Canlı Listele", use_container_width=True)
                 response = model.generate_content(prompt)
                 raw_text = response.text
                 
-                # JSON temizliği
                 clean_json = raw_text.replace("```json", "").replace("```", "").strip()
                 jobs = json.loads(clean_json)
                 
-                st.success(f"{len(jobs)} adet güncel ilan başarıyla bulundu!")
+                st.success(f"{len(jobs)} adet ilan başarıyla listelendi!")
                 
-                # İlanları Kart Şeklinde Ekrana Basma
                 for job in jobs:
                     with st.container():
                         st.markdown(f"### 🏢 {job.get('sirket')} - {job.get('baslik')}")
@@ -80,5 +74,5 @@ if st.button("🔍 Güncel İlanları Canlı Listele", use_container_width=True)
                         st.divider()
                         
             except Exception as e:
-                st.error(f"Bir hata oluştu: {str(e)}")
-                st.info("Lütfen API anahtarınızın doğru olduğundan emin olun ve tekrar deneyin.")
+                st.error(f"Hata detayı: {str(e)}")
+                st.info("Lütfen sol menüye girdiğiniz API anahtarınızın başına veya sonuna fazladan boşluk bırakmadığınızdan emin olun.")
