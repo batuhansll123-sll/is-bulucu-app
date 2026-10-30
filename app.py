@@ -10,7 +10,6 @@ st.write("Türkiye'deki güncel iş ilanlarını tek bir ekranda canlı listeley
 # Yan Menüde API Key Girişi
 with st.sidebar:
     st.header("⚙️ Ayarlar")
-    # API key'i buraya girdiğinde hafızada tutması için key parametresi ekledik
     api_key = st.text_input("Gemini API Key Giriniz", type="password", key="gemini_api_key", help="aistudio.google.com adresinden ücretsiz alabilirsiniz.")
 
 # Kullanıcı Girdi Alanları
@@ -38,7 +37,8 @@ if st.button("🔍 Güncel İlanları Canlı Listele", use_container_width=True)
                 
                 genai.configure(api_key=api_key)
                 
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                # En güncel kararlı model ismi
+                model = genai.GenerativeModel('gemini-2.5-flash')
                 
                 prompt = f"""
                 Sen profesyonel bir iş arama asistanısın. Türkiye'de (LinkedIn, Kariyer.net vb. platformlarda) aktif olarak 
@@ -75,4 +75,3 @@ if st.button("🔍 Güncel İlanları Canlı Listele", use_container_width=True)
                         
             except Exception as e:
                 st.error(f"Hata detayı: {str(e)}")
-                st.info("Lütfen sol menüye girdiğiniz API anahtarınızın başına veya sonuna fazladan boşluk bırakmadığınızdan emin olun.")
