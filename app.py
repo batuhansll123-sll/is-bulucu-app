@@ -37,8 +37,8 @@ if st.button("🔍 Güncel İlanları Canlı Listele", use_container_width=True)
                 
                 genai.configure(api_key=api_key)
                 
-                # En güncel kararlı model ismi
-                model = genai.GenerativeModel('gemini-2.5-flash')
+                # Hata mesajında önerilen en güncel model ismi
+                model = genai.GenerativeModel('gemini-3.8-flash')
                 
                 prompt = f"""
                 Sen profesyonel bir iş arama asistanısın. Türkiye'de (LinkedIn, Kariyer.net vb. platformlarda) aktif olarak 
