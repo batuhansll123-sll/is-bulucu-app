@@ -1,11 +1,10 @@
 import streamlit as st
-import json
 
-# Web Sayfası Başlığı ve Tasarımı
-st.set_page_config(page_title="Tüm İlanlar Tek Çatıda", page_icon="💼", layout="centered")
+# Sayfa Yapılandırması
+st.set_page_config(page_title="Akıllı İş İlanı Agregatörü", page_icon="💼", layout="centered")
 
-st.title("💼 Akıllı İş İlanı Agregatörü")
-st.write("Kariyer.net, LinkedIn, Indeed ve Şirketlerin kendi kariyer sayfalarındaki **güncel** ilanları tek bir yerden arayın.")
+st.title("💼 Akıllı İş İlanı Agregatörü (Canlı)")
+st.write("Kariyer.net, LinkedIn, Indeed ve şirketlerin kariyer sayfalarındaki **güncel** ilanları tek bir yerden arayın.")
 
 # Kullanıcı Girdi Alanları
 col1, col2 = st.columns(2)
@@ -20,30 +19,37 @@ with col2:
     )
 
 # Arama Butonu
-if st.button("🔍 Güncel İlanları Bul", use_container_width=True):
+if st.button("🔍 Güncel İlanları Canlı Ara", use_container_width=True):
     if not job_title:
-        st.warning("Lütfen bir iş unvanı girin!")
+        st.warning("Lütfen aramak istediğiniz bir iş unvanı girin!")
     else:
         st.info(f"'{job_title}' pozisyonu için {location} bölgesinde güncel ilanlar taranıyor...")
         
-        # ARKA PLAN AI MANTIĞI:
-        # Burada seçilen title ve location bilgisi, arka planda Gemini API / Google Search API'ye gönderilir.
-        # Örnek Arama Promptu: 
-        # "Son 7 günde yayınlanmış '{job_title}' ilanlarını LinkedIn, Kariyer.net ve şirket kariyer sitelerinden bul, bana JSON getir."
+        # Kullanıcının arama yapabilmesi için doğrudan arama motoru kısayolları ve akıllı yönlendirme oluşturalım
+        query_location = "" if location == "Tüm Türkiye" else location
         
-        # MOCK/ÖRNEK GÖSTERİM (Sistemin Çalışma Mantığını Ekranda Görmek İçin)
-        st.success("Taramalar tamamlandı! Bulunan güncel ilanlar:")
+        st.success("Arama sonuçları hazır! Doğrudan kaynaklardan incelemek için aşağıdaki bağlantıları kullanabilirsiniz:")
         
-        # Örnek İlan Kartı 1
+        # Arama motorlarında ve platformlarda doğrudan arama yapacak akıllı linkler oluşturalım
+        linkedin_url = f"https://www.linkedin.com/jobs/search/?keywords={job_title.replace(' ', '%20')}&location={query_location.replace(' ', '%20')}"
+        kariyer_net_url = f"https://www.kariyer.net/is-ilanlari/{job_title.lower().replace(' ', '-')}"
+        google_jobs_url = f"https://www.google.com/search?q={job_title.replace(' ', '+')}+iş+ilanları+{query_location.replace(' ', '+')}&ibp=htl;jobs"
+        
+        # Sonuç Kartları
         with st.container():
-            st.markdown(f"### 🏢 Huawei - {job_title}")
-            st.write(f"**Lokasyon:** {location} | **Kaynak:** Huawei Kariyer Sayfası (ATS)")
-            st.markdown("[İlana Git ve Başvur](https://huawei.com/careers)")
+            st.markdown(f"### 🌐 Google İş İlanları (Tüm Ağlar)")
+            st.write(f"Google'ın yapay zeka destekli iş tarayıcısında **{job_title}** ({location}) için en güncel toplu listeyi görün.")
+            st.markdown(f"[Google İş İlanlarında Ara]({google_jobs_url})")
             st.divider()
 
-        # Örnek İlan Kartı 2
         with st.container():
-            st.markdown(f"### 🏢 Trendyol - Senior / Mid {job_title}")
-            st.write(f"**Lokasyon:** {location} | **Kaynak:** LinkedIn")
-            st.markdown("[İlana Git ve Başvur](https://linkedin.com)")
+            st.markdown(f"### 💼 LinkedIn İlanları")
+            st.write(f"LinkedIn üzerindeki güncel **{job_title}** pozisyonlarına doğrudan göz atın.")
+            st.markdown(f"[LinkedIn'de İlanları Gör]({linkedin_url})")
+            st.divider()
+
+        with st.container():
+            st.markdown(f"### 🏢 Kariyer.net")
+            st.write(f"Kariyer.net veritabanındaki **{job_title}** filtreli sonuçlarına ulaşın.")
+            st.markdown(f"[Kariyer.net'te Ara]({kariyer_net_url})")
             st.divider()
